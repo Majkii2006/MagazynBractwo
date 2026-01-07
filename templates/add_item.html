@@ -1,0 +1,76 @@
+{% extends "template_main.html" %}
+
+
+
+{% block title %}
+Dodaj nowy rekord
+{% endblock %}
+
+
+
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mt-3">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<br>
+<div class="form-wrapper" style="font-size: 22px; font-family: Calibri;">
+    <div class="content-section">
+        <form method = "POST" action="">
+            {{ add_item_form.hidden_tag() }}
+            <fieldset class ="form-group">
+                <div class ="form-group">
+                    {{ add_item_form.name.label(class="form-control-label") }}
+                    {{ add_item_form.name(class="form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ add_item_form.category.label(class="form-control-label") }}
+                    {{ add_item_form.category(class="form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ add_item_form.amount.label(class="form-control-label") }}
+                    {{ add_item_form.amount(class="form-control form-control-lg") }}
+                </div>
+                <div class ="form-group">
+                    {{ add_item_form.localization.label(class="form-control-label") }}
+                    {{ add_item_form.localization(class="form-control form-control-lg") }}
+                </div>            
+                <div class ="form-group">
+                    {{ add_item_form.notes.label(class="form-control-label") }}
+                    {{ add_item_form.notes(class="form-control form-control-lg") }}
+                </div>          
+            </fieldset>
+            <div class="form-group">
+                {{ add_item_form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<style>
+    .form-wrapper .form-control {
+        background-color: #191919;   /* ciemne tło */
+        color: #ffffff;              /* jasny tekst */
+        border: 1px solid #444;      /* delikatna ramka */
+    }
+
+    .form-wrapper .form-control:focus {
+        background-color: #333;      /* trochę jaśniejsze przy focusie */
+        border-color: #666;
+        color: #fff;
+    }
+
+    .form-wrapper {
+        width: 400px;        /* dowolna szerokość */
+        margin: 0 auto;  }    /* centruje poziomo */
+</style>
+
+{% endblock content %}
