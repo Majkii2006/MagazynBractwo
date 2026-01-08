@@ -19,16 +19,10 @@ Lista osób
 
 
 <br>
-<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 877px;">
-    Lista Osób
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 550px;">
+    Wybierz osobę, dla której tworzysz wypożyczenie:
 </h1>
 
-<div class="form-wrapper" style="font-size: 16px;">
-  
-    <a href="{{ url_for('person_page_add') }}" class="btn btn-outline btn-success">
-        Dodaj Osobę do Bazy
-    </a>
-</div>
 
 
 {% endblock %}
@@ -52,8 +46,7 @@ Lista osób
                         <td>{{ person.surname }}</td>
                         <td>{{ person.phone }}</td>
                         <td>
-                            <a href="{{url_for('person_page_edit', id=person.id)}}" class="btn btn-outline btn-info">Edytuj Osobę</a>
-                            <a href="{{url_for('person_page_delete', id=person.id)}}" class="btn btn-outline btn-danger">Usuń Osobę</a>
+                            <a href="{{ url_for('choose_person_page', id=person.id) }}" class="btn btn-outline btn-primary">Wybierz</a>
                         </td>
                     </tr>
         {% endfor %}

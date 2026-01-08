@@ -23,15 +23,23 @@ Stan Magazynu
 
 
 <br>
-<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 840px;">
-    Stan Magazynu
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 500px;">
+    Wybierz sprzęt, który chcesz przypisać do tej wypożyczki:
 </h1>
+<h1 style="font-family: Calibri; font-size: 22px; font-weight: 600; margin-left: 740px;">
+    Po wybraniu wszystkich wartości, wciśnij przycisk.
+</h1>
+<div class="form-wrapper" style="font-size: 16px;">
+  
+    <a href="#" class="btn btn-outline btn-info">
+        Dodaj wypożyczenie
+    </a>
+</div>
+
+
 
 <div class="form-wrapper" style="font-size: 16px;">
   
-    <a href="{{ url_for('magazine_page_add') }}" class="btn btn-outline btn-success">
-        Dodaj Rekord do Bazy
-    </a>
 </div>
 
 {% endblock %}
@@ -47,6 +55,7 @@ Stan Magazynu
         <th scope="col">Ilość</th>
         <th scope="col">Lokalizacja</th>
         <th scope="col">Uwagi</th>
+        <th scope="col">Ilość do wypożyczenia</th>
         </tr>
     </thead>
     <tbody>
@@ -59,8 +68,11 @@ Stan Magazynu
                         <td>{{ item.localization }}</td>
                         <td>{{ item.notes}}</td>
                         <td>
-                            <a href="{{url_for('magazine_page_edit', id=item.id)}}" class="btn btn-outline btn-info ">Edytuj</a>
-                            <a href="{{url_for('magazine_page_delete', id=item.id)}}" class="btn btn-outline btn-danger">Usuń</a>
+                            <select class="form-select bg-dark text-white border-secondary select-fixed">
+                                {% for i in range(0, item.amount + 1) %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
                         </td>
                     </tr>
         {% endfor %}
@@ -73,5 +85,9 @@ Stan Magazynu
     .form-wrapper {
         width: fit-content;
         margin: 0 auto;  }    /* centruje poziomo */
+
+    .select-fixed{
+        width:50px;
+    }
 </style>
 {%endblock%}

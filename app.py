@@ -1,10 +1,10 @@
-from flask import Flask, render_template, url_for, redirect, flash
+from flask import Flask, render_template, url_for, redirect, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, IntegerField, SubmitField
 from wtforms.validators import DataRequired, Length
-import phonenumbers
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'
@@ -98,6 +98,53 @@ def magazine_page_add():
     return render_template('add_item.html', title='Add New Item', add_item_form=add_item_form)
 
 
+@app.route('/magazine/delete/<int:id>')
+def magazine_page_delete(id):
+    item_to_delete = Item.query.get_or_404(id)
+
+    try:
+        db.session.delete(item_to_delete)
+        db.session.commit()
+        flash("Sprzęt pomyślnie usunięty z bazy danych", 'success')
+        return redirect(url_for('magazine_page'))
+    except:
+        flash("Wystąpił problem przy usuwaniu tego sprzętu", "danger")
+        return redirect(url_for('magazine_page'))
+    
+
+@app.route('/magazine/edit/<int:id>', methods=['POST', 'GET'])
+def magazine_page_edit(id):
+    form = AddNewItemForm()
+    item_to_update = Item.query.get_or_404(id)
+
+    if request.method == "POST" and form.validate_on_submit():
+        item_to_update.name = form.name.data
+        item_to_update.category = form.category.data
+        item_to_update.amount = form.amount.data
+        item_to_update.localization = form.localization.data
+        item_to_update.notes = form.notes.data
+
+        try:
+            db.session.commit()
+            flash("Pomyślnie zaktualizowano sprzęt", "success")
+            return redirect(url_for('magazine_page'))
+        except:
+            flash("Nie udało się zaktualizować sprzętu, spróbuj ponownie później")
+
+    else:
+        form.name.data = item_to_update.name
+        form.category.data = item_to_update.category
+        form.amount.data = item_to_update.amount
+        form.localization.data = item_to_update.localization
+        form.notes.data = item_to_update.notes
+        return render_template('edit_item.html', add_item_form = form, item_to_update=item_to_update)
+
+
+
+
+
+
+
 
 
 
@@ -121,6 +168,7 @@ def person_page_add():
             new_person = Person(name=name, surname=surname, phone=phone)
             db.session.add(new_person)
             db.session.commit()
+            flash(f'Dodano nową osobę o imieniu {add_person_form.name.data}', 'success')
             return redirect(url_for('persons_page'))
         except:
             flash(f'Wystąpił błąd, prawdopodobnie istnieje już taka osoba w bazie.', 'danger')
@@ -130,10 +178,79 @@ def person_page_add():
     return render_template('add_person.html', title="Add New Person", add_person_form=add_person_form)
 
 
+@app.route('/persons/delete/<int:id>')
+def person_page_delete(id):
+    person_to_delete=Person.query.get_or_404(id)
+
+    try:
+        db.session.delete(person_to_delete)
+        db.session.commit()
+        flash("Osoba pomyślnie usunięta z bazy danych", 'success')
+        return redirect(url_for('persons_page'))
+    except:
+        flash("Wystąpił problem przy usuwaniu tej osoby", "danger")
+        return redirect(url_for('persons_page'))
+    
+
+
+
+@app.route('/persons/edit/<int:id>', methods=['POST', 'GET'])
+def person_page_edit(id):
+    person_to_update = Person.query.get_or_404(id)
+    form = AddNewPersonForm()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        person_to_update.name = form.name.data
+        person_to_update.surname = form.surname.data
+        person_to_update.phone = form.phone.data
+
+        try:
+            db.session.commit()
+            flash("Dane osoby zostały zaktualizowane", 'success')
+            return redirect(url_for('persons_page'))
+        except:
+            flash("Nie udało się zaktualizować osoby", 'danger')
+
+    else:
+        form.name.data = person_to_update.name
+        form.surname.data = person_to_update.surname
+        form.phone.data = person_to_update.phone
+
+    return render_template(
+        'edit_person.html',
+        add_person_form=form,
+        person_to_update=person_to_update
+    )
+
+
+@app.route('/persons/choose/<int:id>', methods=['GET'])
+def choose_person_page(id):
+    person = Person.query.get_or_404(id)
+
+    session['selected_person_id'] = person.id
+    session['selected_person_name'] = person.name
+    session['selected_person_surname'] = person.surname
+
+    print(person.id, person.name, person.surname)
+    return redirect(url_for('choose_item_list'))
+
+
+
+@app.route('/persons/choose', methods=['GET'])
+def choose_person_list():
+    persons = Person.query.all()
+    return render_template('rental_person_choose.html', persons=persons)
+
+
 
 @app.route("/rentals")
 def rentals_page():
     return render_template('rentals.html')
+
+@app.route("/magazine/choose", methods=['GET'])
+def choose_item_list():
+    items = Item.query.all()
+    return render_template('rental_magazine_choose.html', items=items)
 
 
 

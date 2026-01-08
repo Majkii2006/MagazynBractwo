@@ -2,13 +2,46 @@
 
 {% block title %}
 
-Rentals Page
+Panel Wypożyczeń
 
 {% endblock %}
 
 
 {% block content %}
 
-  <h1>Rentals Page</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mt-3">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<br>
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 815px;">
+    Panel Wypożyczeń
+</h1>
+
+<div class="form-wrapper" style="font-size: 16px;">
+  
+    <a href="{{url_for('choose_person_list') }}" class="btn btn-outline btn-success">
+        Dodaj Nowe Wypożyczenie
+    </a>
+</div>
+
+<!--Docelowo tabela z wypożyczeniami dla danych osób-->
+
+
+
+
+
+<style>
+    
+    .form-wrapper {
+        width: fit-content;
+        margin: 0 auto;  }    /* centruje poziomo */
+</style>
 
 {% endblock %}
