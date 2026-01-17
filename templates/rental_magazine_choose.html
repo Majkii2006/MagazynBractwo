@@ -1,15 +1,10 @@
 {% extends "template_main.html" %}
 
 {% block title %}
-
 Stan Magazynu
-
 {% endblock %}
 
-
-
 {% block content %}
-
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -21,7 +16,6 @@ Stan Magazynu
   {% endif %}
 {% endwith %}
 
-
 <br>
 <h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 500px;">
     Wybierz sprzęt, który chcesz przypisać do tej wypożyczki:
@@ -29,65 +23,58 @@ Stan Magazynu
 <h1 style="font-family: Calibri; font-size: 22px; font-weight: 600; margin-left: 740px;">
     Po wybraniu wszystkich wartości, wciśnij przycisk.
 </h1>
-<div class="form-wrapper" style="font-size: 16px;">
-  
-    <a href="#" class="btn btn-outline btn-info">
-        Dodaj wypożyczenie
-    </a>
-</div>
 
-
-
-<div class="form-wrapper" style="font-size: 16px;">
-  
-</div>
+<form method="POST" action="{{ url_for('confirm_rentals') }}">
+    <div class="form-wrapper" style="font-size: 16px;">
+        <button type="submit" class="btn btn-outline btn-info">
+            Dodaj wypożyczenie
+        </button>
+    </div>
 
 {% endblock %}
 
-
-{%block table %}
+{% block table %}
     <table class="table table-striped table-dark">
     <thead>
         <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Nazwa</th>
-        <th scope="col">Kategoria</th>
-        <th scope="col">Ilość</th>
-        <th scope="col">Lokalizacja</th>
-        <th scope="col">Uwagi</th>
-        <th scope="col">Ilość do wypożyczenia</th>
+        <th>ID</th>
+        <th>Nazwa</th>
+        <th>Kategoria</th>
+        <th>Ilość</th>
+        <th>Lokalizacja</th>
+        <th>Uwagi</th>
+        <th>Ilość do wypożyczenia</th>
         </tr>
     </thead>
     <tbody>
         {% for item in items %}
-                    <tr>
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.category }}</td>
-                        <td>{{ item.amount }}</td>
-                        <td>{{ item.localization }}</td>
-                        <td>{{ item.notes}}</td>
-                        <td>
-                            <select class="form-select bg-dark text-white border-secondary select-fixed">
-                                {% for i in range(0, item.amount + 1) %}
-                                <option value="{{ i }}">{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                    </tr>
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.amount }}</td>
+            <td>{{ item.localization }}</td>
+            <td>{{ item.notes }}</td>
+            <td>
+                <select name="item_{{ item.id }}" class="form-select bg-dark text-white border-secondary select-fixed">
+                    {% for i in range(0, item.amount + 1) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
     </table>
-
+</form>
 
 <style>
-    
     .form-wrapper {
         width: fit-content;
-        margin: 0 auto;  }    /* centruje poziomo */
-
-    .select-fixed{
-        width:50px;
+        margin: 0 auto;
+    }
+    .select-fixed {
+        width: 50px;
     }
 </style>
-{%endblock%}
+{% endblock %}

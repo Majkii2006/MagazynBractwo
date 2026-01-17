@@ -1,0 +1,47 @@
+{% extends "template_main.html" %}
+
+{% block title %}
+
+Panel Wypożyczeń
+
+{% endblock %}
+
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mt-3">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<br>
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 815px;">
+    Panel Wypożyczeń
+</h1>
+
+<div class="form-wrapper" style="font-size: 16px;">
+  
+    <a href="{{url_for('choose_person_list') }}" class="btn btn-outline btn-success">
+        Dodaj Nowe Wypożyczenie
+    </a>
+</div>
+
+<br>
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 550px;">
+    Aktualnie nie ma żadnego aktywnego wypożyczenia
+</h1>
+
+<style>
+    
+    .form-wrapper {
+        width: fit-content;
+        margin: 0 auto;  }    /* centruje poziomo */
+</style>
+
+{% endblock %}
+

@@ -27,6 +27,10 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('rentals_page')}}">Przejdź do listy wypożyczeń</a>
             </li>
+            <li class="nav-item ">
+                 <a href="{{url_for('logout')}}" class="btn btn-outline-info btn-space">Wyloguj</a>
+            </li>
+
         </ul>
       </div>
     </nav>
@@ -59,5 +63,9 @@
         background-color: #212121;
         color: white
       }
+      .btn-space { 
+        margin-left: 1000px; 
+    
+    } 
   </style>
 </html>
