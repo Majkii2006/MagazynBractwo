@@ -194,7 +194,7 @@ def take_request_form():
                 body += f"{item['id']} - {item['name']} x{item['amount']}\n"
 
             msg = MIMEText(body, _charset="utf-8")
-            msg['Subject'] = f'Nowe Wypożyczenie od {person['name']} {person['surname']}'
+            msg['Subject'] = f'Nowe Wypożyczenie od {person["name"]} {person["surname"]}'
             msg['From'] = myEmail
             msg['To'] = ", ".join([cris_email, michael_email, igantius_email])
 
@@ -511,4 +511,4 @@ def choose_item_list():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
