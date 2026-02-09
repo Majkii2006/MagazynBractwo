@@ -9,20 +9,17 @@
 <body>
 
 <br>
-<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; margin-left: 580px;">
+<h1 style="font-family: Calibri; font-size: 38px; font-weight: 600; text-align:center;">
     Wybierz sprzęt, którego będziesz potrzebował:
 </h1>
-<h1 style="font-family: Calibri; font-size: 26px; font-weight: 600; margin-left: 690px;">
-    Po wybraniu, wciśnij przycisk, aby przejść dalej.
+<h1 style="font-family: Calibri; font-size: 26px; font-weight: 600; text-align:center;">
+    Po wybraniu, wciśnij przycisk na dole, aby przejść dalej.
 </h1>
 
 <div class="d-flex justify-content-center mt-3"></div>
 
 <form method="POST" action="{{ url_for('take_request_next') }}">
 
-<div class="d-flex justify-content-center mt-4">
-    <button type="submit" class="btn btn-primary">Przejdź dalej</button>
-</div>
 {% block table %}
 <br>
 <table class="table table-striped table-dark">
@@ -32,7 +29,7 @@
             <th>Nazwa</th>
             <th>Kategoria</th>
             <th>Ilość</th>
-            <th>Ilość do wypożyczenia</th>
+            <th>Wypożyczam</th>
         </tr>
     </thead>
     <tbody>
@@ -53,7 +50,9 @@
         {% endfor %}
     </tbody>
 </table>
-
+<div class="d-flex justify-content-center mt-4">
+    <button type="submit" class="btn btn-primary">Przejdź dalej</button>
+</div>
 
 
 {% endblock %}

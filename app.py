@@ -9,11 +9,17 @@ from flask_bcrypt import Bcrypt
 import os 
 from email.mime.text import MIMEText
 import smtplib
-
+import requests
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'
 app.config['SECRET_KEY'] = '967f38b36fbe26a1ab35b4bd6db7e6f1'
+
+app.config.update(
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax'
+)
 
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
@@ -25,14 +31,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-
-#===================Konfiguracja wysyłania email=====================
-
-
-
-
-
-#======================================================================
+#Po dodadniu działa nagle przekierowywanie i wszystko
+login_manager.session_protection = 'strong'
 
 
 @login_manager.user_loader
@@ -46,8 +46,8 @@ def load_user(user_id):
 
 #Linijka na dole powoduje, że python znajduje katalog instance i tam moze sobie utworzyć bazę
 #inaczej to nie działa i nie da sie utworzyć bazy danych poleceniem db.create_all()
-app.app_context().push()
-
+#app.app_context().push()
+#Tylko podczas tworzenia bazy
 
 
 class User(db.Model, UserMixin):
@@ -68,42 +68,48 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Hasło"})
     submit = SubmitField("Zaloguj")
 
+#Wyłączona rejestracja, nie przyjmujmy nowych kont
 
+# @app.route('/register', methods=["POST", "GET"])
+# def register():
+#     form = RegistrationForm()
+#     if form.validate_on_submit():
+#         hashed_password = bcrypt.generate_password_hash(form.password.data)
+#         new_user = User(username = form.username.data, password = hashed_password )
+#         db.session.add(new_user)
+#         db.session.commit()
+#         return redirect(url_for('login'))
+#     return render_template('register.html', form=form)
 
-@app.route('/register', methods=["POST", "GET"])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
-        new_user = User(username = form.username.data, password = hashed_password )
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('login'))
-    return render_template('register.html', form=form)
-
-
-@app.route('/login', methods=["POST", "GET"])
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username = form.username.data).first()
-        if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user)
-                flash(f'Pomyślnie zalogowano, masz otwartą sesję dla {form.username.data}', 'success')
-                return redirect(url_for('home_page'))
-            else:
-                flash("Wpisane hasło jest niepoprawne!", 'danger')
-                return render_template('login.html', form=form)
 
-        flash("Wpisana nazwa użytkownika jest niepoprawna!", 'danger')
-        
+    if current_user.is_authenticated:
+        return redirect(url_for('home_page'))
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user)
+
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('home_page'))
+
+        flash("Niepoprawna nazwa użytkownika lub hasło", "danger")
+
     return render_template('login.html', form=form)
+
 
 @app.route('/logout', methods=["GET", "POST"])
 def logout():
     logout_user()
+    session.pop("_user_id", None)
+    session.pop("_fresh", None)
     return redirect(url_for('login'))
+
 
 
 
@@ -208,7 +214,7 @@ def take_request_form():
 
 
             flash('Wysłano prośbę o wypożyczenie, skontaktujemy się z tobą w najbliższym czasie.', 'success')
-            return redirect(url_for('login'))
+            return redirect(url_for('home_page'))
         else:
             flash('Wpisałeś zły kod kontrolny', 'danger')
             return redirect(url_for('take_request_form'))
@@ -309,20 +315,56 @@ class Item(db.Model):
 @app.route("/home")
 @login_required
 def home_page():
-    return render_template('home.html')
+    meme = requests.get("https://meme-api.com/gimme").json() 
+    meme_url = meme['url']
+    return render_template('home.html', meme_url=meme_url)
 
 @app.route("/magazine")
 @login_required
 def magazine_page():
     items = Item.query.all()   
-    
     return render_template('magazine.html', items=items)
 
 
 @app.route('/magazineview')
 def magazine_view():
-    items = Item.query.all()
-    return render_template('magazine_view_only.html', items = items)
+    category = request.args.get("category")
+    sort = request.args.get("sort")
+    search = request.args.get("search")
+
+    if category and category != "all":
+        items = Item.query.filter_by(category=category)
+    else:
+        items = Item.query
+
+
+    if search:
+        search_pattern = f"%{search}%"
+        items= items.filter(Item.name.ilike(search_pattern) | (Item.category.ilike(search_pattern)))
+
+
+    if sort == "name":
+        items = items.order_by(Item.name.asc())
+    elif sort == "category":
+        items = items.order_by(Item.category.asc())
+    elif sort == "amount_asc":
+        items = items.order_by(Item.amount.asc())
+    elif sort == "amount_desc":
+        items = items.order_by(Item.amount.desc())
+    else:
+        items = items.order_by(Item.id.asc())  
+
+    items = items.all()
+
+    return render_template(
+        'magazine_view_only.html',
+        items=items,
+        category=category,
+        sort=sort,
+        search=search
+    )
+
+
 
 @app.route("/magazine/add", methods =['GET', 'POST'])
 @login_required
