@@ -35,3 +35,6 @@ Finally, there is mail send with details about rental:
 
 <img width="572" height="373" alt="image" src="https://github.com/user-attachments/assets/a0875b58-6647-4460-987f-087c51af767c" />
 
+You can test the APP here:
+http://83.168.78.62/
+
